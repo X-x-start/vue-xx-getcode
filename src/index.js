@@ -1,1 +1,3 @@
-export {default as Getcode}  from './getcode'
+import getcode from './getcode'
+
+export default getcode
