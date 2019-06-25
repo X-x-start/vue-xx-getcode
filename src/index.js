@@ -1,3 +1,1 @@
-import getcode from './getcode'
-
-export default getcode
+export {getcode} from './getcode.vue'

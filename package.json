@@ -1,6 +1,6 @@
 {
   "name": "ggetcode",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "this is a good project",
   "main": "dist/index.js",
   "scripts": {
