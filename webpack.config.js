@@ -1,73 +1,81 @@
-var path = require('path');
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+var path = require('path')
 var webpack = require('webpack')
 
 module.exports = {
-	entry: {
-		'index': './src/index.js'
-	},
-	output: {
-		path: path.resolve(__dirname, './dist'),
-		filename: '[name].js',
-		library: 'MyComponent',
-		libraryTarget: 'umd'
-	},
-	// devtool: '#source-map',
-	devtool: '#eval-source-map',
-	resolve: {
-		alias: {
-			'vue$': 'vue/dist/vue.esm.js'
-		},
-		extensions: ['.js', '.vue']
-	},
-	mode: 'production',
-	performance: {
-		hints: false
-	},
-	module: {
-		rules: [
-			{
-				test: /\.js$/,
-				exclude: /node_modules/,
-				use:{
-					loader: 'babel-loader',
-					options: {
-						presets: ['@babel/preset-env'],
-						"env": {
-							"test": {
-								"plugins": ["istanbul"]
-							}
-						}
-					}
-				}
-			},
-			{
-				test: /\.vue$/,
-				loader: 'vue-loader',
-				exclude: /node_modules/
-			},
-			{
-				test: /\.css$/,
-				use: [
-					'vue-style-loader',
-					'css-loader'
-				]
-			}
-		]
-	},
-	plugins: [
-		new VueLoaderPlugin()
-	]
-};
+  entry: process.env.NODE_ENV == "development" ? './src/main.js' : './src/component/index.js',
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    publicPath: '/dist/',
+    filename: 'getcode.js',
+    library: 'getcode',
+    libraryTarget: "umd",
+    umdNamedDefine: true
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          'vue-style-loader',
+          'css-loader'
+        ],
+      }, {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+          loaders: {}
+          // other vue-loader options go here
+        }
+      },
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]?[hash]'
+        }
+      }
+    ]
+  },
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js'
+    },
+    extensions: ['*', '.js', '.vue', '.json']
+  },
+  devServer: {
+    historyApiFallback: true,
+    noInfo: true,
+    overlay: true
+  },
+  performance: {
+    hints: false
+  },
+}
 
-
-// if (process.env.NODE_ENV === 'production') {
-//     module.exports.devtool = false;
-//     module.exports.plugins = (module.exports.plugins || []).concat([
-//         new webpack.DefinePlugin({
-//             'process.env': {
-//                 NODE_ENV: '"production"'
-//             }
-//         }),
-//     ])
-// }
+if (process.env.NODE_ENV === 'production') {
+  
+  // http://vue-loader.vuejs.org/en/workflow/production.html
+  module.exports.plugins = (module.exports.plugins || []).concat([
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"production"'
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      sourceMap: true,
+      compress: {
+        warnings: false
+      }
+    }),
+    new webpack.LoaderOptionsPlugin({
+      minimize: true
+    })
+  ])
+} else {
+  module.exports.devtool = '#source-map'
+}
